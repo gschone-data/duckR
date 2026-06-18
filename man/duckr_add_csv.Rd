@@ -41,3 +41,16 @@ The connection \code{con}, invisibly.
 \description{
 Add a CSV file as a view or table
 }
+\examples{
+con <- duckr_connect()
+csv <- system.file("extdata", "penguins.csv", package = "duckR")
+duckr_add_csv(basename(csv), dir = dirname(csv), name = "penguins")
+duckr_close()
+}
+\seealso{
+Other data loaders:
+\code{\link[=duckr_add_df]{duckr_add_df()}},
+\code{\link[=duckr_add_lazy]{duckr_add_lazy()}},
+\code{\link[=duckr_add_parquet]{duckr_add_parquet()}}
+}
+\concept{data loaders}

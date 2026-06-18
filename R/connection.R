@@ -15,6 +15,11 @@
 #'
 #' @return The DBI connection object, invisibly. It is also stored as the
 #'   current connection (see [duckr_con()]).
+#' @family connection functions
+#' @examples
+#' con <- duckr_connect()
+#' duckr_status()
+#' duckr_close()
 #' @export
 duckr_connect <- function(
   dbdir = ":memory:",
@@ -71,6 +76,11 @@ duckr_connect <- function(
 #' Used as the default `con` argument throughout the package.
 #'
 #' @return The current DBI connection object.
+#' @family connection functions
+#' @examples
+#' duckr_connect()
+#' con <- duckr_con()
+#' duckr_close()
 #' @export
 duckr_con <- function() {
   con <- duckr_get_current()
@@ -91,6 +101,10 @@ duckr_con <- function() {
 #' @param con A DBI connection. Defaults to the current connection.
 #'
 #' @return `TRUE` if the connection was closed, invisibly.
+#' @family connection functions
+#' @examples
+#' con <- duckr_connect()
+#' duckr_close(con)
 #' @export
 duckr_close <- function(con = duckr_con()) {
   ok <- tryCatch(

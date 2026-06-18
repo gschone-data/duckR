@@ -21,3 +21,14 @@ A data frame with columns \code{catalog}, \code{schema}, \code{name}, \code{type
 Lists tables and views across all catalogs (the in-memory/file database plus
 any attached database, including PostgreSQL), with an optional row count.
 }
+\examples{
+con <- duckr_connect()
+duckr_add_df(mtcars, name = "cars")
+duckr_explore()
+duckr_close()
+}
+\seealso{
+Other exploration functions:
+\code{\link[=duckr_status]{duckr_status()}}
+}
+\concept{exploration functions}

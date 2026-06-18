@@ -3,8 +3,17 @@
     Code
       duckr_add_csv("t.csv", dir = dir, name = "t")
     Condition
-      Error in `duckr_create_as()`:
+      Error in `duckr_drop_if_exists()`:
       ! An object named "t" already exists.
+      i Use `overwrite = TRUE` to replace it.
+
+# duckr_add_df errors when the object exists
+
+    Code
+      duckr_add_df(iris, name = "iris_v")
+    Condition
+      Error in `duckr_drop_if_exists()`:
+      ! An object named "iris_v" already exists.
       i Use `overwrite = TRUE` to replace it.
 
 # duckr_add_lazy rejects a query from another connection

@@ -88,6 +88,31 @@ test_that("duckr_add_lazy creates an object from a dbplyr query", {
   expect_identical(DBI::dbGetQuery(con, "SELECT total FROM agg")$total, 10)
 })
 
+test_that("duckr_add_df adds iris as a view then a materialised table", {
+  con <- local_con()
+
+  suppressMessages(duckr_add_df(iris, name = "iris_v"))
+  info <- duckr_explore(con)
+  expect_identical(info$type[info$name == "iris_v"], "view")
+  expect_identical(info$n_rows[info$name == "iris_v"], 150)
+
+  suppressMessages(duckr_add_df(
+    iris,
+    name = "iris_v",
+    materialize = TRUE,
+    overwrite = TRUE
+  ))
+  info <- duckr_explore(con)
+  expect_identical(info$type[info$name == "iris_v"], "table")
+  expect_identical(info$n_rows[info$name == "iris_v"], 150)
+})
+
+test_that("duckr_add_df errors when the object exists", {
+  con <- local_con()
+  suppressMessages(duckr_add_df(iris, name = "iris_v"))
+  expect_snapshot(duckr_add_df(iris, name = "iris_v"), error = TRUE)
+})
+
 test_that("duckr_add_lazy rejects a query from another connection", {
   con <- local_con()
   con2 <- local_con()

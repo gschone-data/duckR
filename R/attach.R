@@ -27,6 +27,14 @@ duckr_attach_sql <- function(con, conn, alias, read_only) {
 #' @param read_only Whether to attach read-only. Defaults to `TRUE`.
 #'
 #' @return The connection `con`, invisibly.
+#' @seealso [duckr_explore()] to list the attached database's objects.
+#' @examples
+#' \dontrun{
+#' duckr_connect()
+#' duckr_attach_postgres("host=localhost dbname=prod user=reader", alias = "pg")
+#' duckr_explore()
+#' duckr_close()
+#' }
 #' @export
 duckr_attach_postgres <- function(
   conn,

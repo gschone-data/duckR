@@ -16,6 +16,14 @@ test_that("duckr_explore skips row counts when row_count = FALSE", {
   expect_true(all(is.na(info$n_rows)))
 })
 
+test_that("duckr_explore handles a connection with no objects", {
+  con <- local_con()
+  info <- duckr_explore(con)
+  expect_identical(nrow(info), 0L)
+  expect_named(info, c("catalog", "schema", "name", "type", "n_rows"))
+  expect_identical(nrow(duckr_explore(con, row_count = FALSE)), 0L)
+})
+
 test_that("duckr_status reports the expected fields", {
   con <- local_con()
   status <- duckr_status(con)

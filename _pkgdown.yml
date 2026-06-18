@@ -14,6 +14,11 @@ reference:
   - duckr_add_lazy
   - duckr_add_parquet
   - duckr_add_csv
+  - duckr_add_df
+- title: Exporting data
+  contents:
+  - duckr_to_parquet
+  - duckr_to_csv
 - title: Exploration
   contents:
   - duckr_explore

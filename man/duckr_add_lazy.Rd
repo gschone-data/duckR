@@ -32,3 +32,18 @@ The connection \code{con}, invisibly.
 Renders a \code{dbplyr} lazy query to SQL and creates a view (default) or a
 materialised table from it.
 }
+\examples{
+\dontrun{
+con <- duckr_connect()
+DBI::dbExecute(con, "CREATE TABLE t AS SELECT 1 AS x")
+duckr_add_lazy(dplyr::tbl(con, "t"), name = "v")
+duckr_close()
+}
+}
+\seealso{
+Other data loaders:
+\code{\link[=duckr_add_csv]{duckr_add_csv()}},
+\code{\link[=duckr_add_df]{duckr_add_df()}},
+\code{\link[=duckr_add_parquet]{duckr_add_parquet()}}
+}
+\concept{data loaders}

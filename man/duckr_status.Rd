@@ -17,3 +17,13 @@ objects (tables + views) and the DuckDB version.
 \description{
 Report the state of a DuckDB connection
 }
+\examples{
+con <- duckr_connect()
+duckr_status()
+duckr_close()
+}
+\seealso{
+Other exploration functions:
+\code{\link[=duckr_explore]{duckr_explore()}}
+}
+\concept{exploration functions}

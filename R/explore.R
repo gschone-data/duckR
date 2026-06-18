@@ -10,6 +10,12 @@
 #'
 #' @return A data frame with columns `catalog`, `schema`, `name`, `type`
 #'   (`"table"` or `"view"`) and `n_rows`.
+#' @family exploration functions
+#' @examples
+#' con <- duckr_connect()
+#' duckr_add_df(mtcars, name = "cars")
+#' duckr_explore()
+#' duckr_close()
 #' @export
 duckr_explore <- function(con = duckr_con(), row_count = TRUE) {
   objects <- DBI::dbGetQuery(
@@ -23,7 +29,7 @@ duckr_explore <- function(con = duckr_con(), row_count = TRUE) {
     )
   )
 
-  objects$n_rows <- NA_real_
+  objects$n_rows <- rep(NA_real_, nrow(objects))
   if (isTRUE(row_count) && nrow(objects) > 0L) {
     objects$n_rows <- vapply(
       seq_len(nrow(objects)),
@@ -55,6 +61,11 @@ duckr_explore <- function(con = duckr_con(), row_count = TRUE) {
 #' @return A one-row data frame with the database location, type
 #'   (`"memory"`/`"file"`), memory limit, memory used, thread count, number of
 #'   objects (tables + views) and the DuckDB version.
+#' @family exploration functions
+#' @examples
+#' con <- duckr_connect()
+#' duckr_status()
+#' duckr_close()
 #' @export
 duckr_status <- function(con = duckr_con()) {
   dblist <- DBI::dbGetQuery(con, "PRAGMA database_list")

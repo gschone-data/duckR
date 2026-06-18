@@ -23,3 +23,14 @@ The connection \code{con}, invisibly.
 Loads the DuckDB \code{postgres} extension and attaches a PostgreSQL database.
 Once attached, its objects appear in \code{\link[=duckr_explore]{duckr_explore()}}.
 }
+\examples{
+\dontrun{
+duckr_connect()
+duckr_attach_postgres("host=localhost dbname=prod user=reader", alias = "pg")
+duckr_explore()
+duckr_close()
+}
+}
+\seealso{
+\code{\link[=duckr_explore]{duckr_explore()}} to list the attached database's objects.
+}

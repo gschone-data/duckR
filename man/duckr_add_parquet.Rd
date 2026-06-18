@@ -34,3 +34,16 @@ The connection \code{con}, invisibly.
 \description{
 Add a Parquet file as a view or table
 }
+\examples{
+con <- duckr_connect()
+pq <- system.file("extdata", "penguins.parquet", package = "duckR")
+duckr_add_parquet(basename(pq), dir = dirname(pq), name = "penguins")
+duckr_close()
+}
+\seealso{
+Other data loaders:
+\code{\link[=duckr_add_csv]{duckr_add_csv()}},
+\code{\link[=duckr_add_df]{duckr_add_df()}},
+\code{\link[=duckr_add_lazy]{duckr_add_lazy()}}
+}
+\concept{data loaders}

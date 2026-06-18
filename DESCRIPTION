@@ -1,6 +1,6 @@
 Package: duckR
 Title: A Lightweight DuckDB Wrapper Maximising SQL and DBI
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("gschone-data", email = "curseur_85@proton.me", role = c("aut", "cre"))
 Description: A light wrapper around DuckDB that maximises the use of SQL and the

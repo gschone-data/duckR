@@ -16,3 +16,13 @@ duckr_close(con = duckr_con())
 Disconnects and shuts down DuckDB. If the closed connection was the current
 one, the internal reference is cleared.
 }
+\examples{
+con <- duckr_connect()
+duckr_close(con)
+}
+\seealso{
+Other connection functions:
+\code{\link[=duckr_con]{duckr_con()}},
+\code{\link[=duckr_connect]{duckr_connect()}}
+}
+\concept{connection functions}

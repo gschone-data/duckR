@@ -13,3 +13,14 @@ The current DBI connection object.
 Returns the connection registered by the most recent \code{\link[=duckr_connect]{duckr_connect()}} call.
 Used as the default \code{con} argument throughout the package.
 }
+\examples{
+duckr_connect()
+con <- duckr_con()
+duckr_close()
+}
+\seealso{
+Other connection functions:
+\code{\link[=duckr_close]{duckr_close()}},
+\code{\link[=duckr_connect]{duckr_connect()}}
+}
+\concept{connection functions}

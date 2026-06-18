@@ -12,6 +12,14 @@
 #'   use `CREATE OR REPLACE`.
 #'
 #' @return The connection `con`, invisibly.
+#' @family data loaders
+#' @examples
+#' \dontrun{
+#' con <- duckr_connect()
+#' DBI::dbExecute(con, "CREATE TABLE t AS SELECT 1 AS x")
+#' duckr_add_lazy(dplyr::tbl(con, "t"), name = "v")
+#' duckr_close()
+#' }
 #' @export
 duckr_add_lazy <- function(
   lazy,
@@ -33,6 +41,51 @@ duckr_add_lazy <- function(
   invisible(con)
 }
 
+#' Add an R data frame as a view or table
+#'
+#' Brings an R `data.frame` into the connection. By default it is registered as
+#' a virtual view backed by the live R object; materialising copies the data
+#' into a standalone DuckDB table.
+#'
+#' @param df A `data.frame` to add.
+#' @param name Name of the object to create.
+#' @param con A DBI connection. Defaults to the current connection.
+#' @param materialize If `FALSE` (default) register `df` as a `VIEW` backed by
+#'   the live R object; if `TRUE` copy it into a standalone `TABLE`.
+#' @param overwrite If `FALSE` (default) error when the object exists; if `TRUE`
+#'   replace it.
+#'
+#' @return The connection `con`, invisibly.
+#' @family data loaders
+#' @examples
+#' con <- duckr_connect()
+#' duckr_add_df(mtcars, name = "cars")
+#' DBI::dbGetQuery(con, "SELECT count(*) AS n FROM cars")
+#' duckr_close()
+#' @export
+duckr_add_df <- function(
+  df,
+  name,
+  con = duckr_con(),
+  materialize = FALSE,
+  overwrite = FALSE
+) {
+  duckr_drop_if_exists(con, name, overwrite)
+  # duckr_drop_if_exists already removes a previously registered df-view via its
+  # DROP; this unregister is belt-and-suspenders (no-op when nothing is bound).
+  duckdb::duckdb_unregister(con, name)
+
+  if (isTRUE(materialize)) {
+    DBI::dbWriteTable(con, name, df)
+    type <- "table"
+  } else {
+    duckdb::duckdb_register(con, name, df)
+    type <- "view"
+  }
+  cli::cli_inform("Created {type} {.val {name}}.")
+  invisible(con)
+}
+
 #' Add a Parquet file as a view or table
 #'
 #' @param file Parquet file name.
@@ -45,6 +98,12 @@ duckr_add_lazy <- function(
 #'   use `CREATE OR REPLACE`.
 #'
 #' @return The connection `con`, invisibly.
+#' @family data loaders
+#' @examples
+#' con <- duckr_connect()
+#' pq <- system.file("extdata", "penguins.parquet", package = "duckR")
+#' duckr_add_parquet(basename(pq), dir = dirname(pq), name = "penguins")
+#' duckr_close()
 #' @export
 duckr_add_parquet <- function(
   file,
@@ -80,6 +139,12 @@ duckr_add_parquet <- function(
 #'   use `CREATE OR REPLACE`.
 #'
 #' @return The connection `con`, invisibly.
+#' @family data loaders
+#' @examples
+#' con <- duckr_connect()
+#' csv <- system.file("extdata", "penguins.csv", package = "duckR")
+#' duckr_add_csv(basename(csv), dir = dirname(csv), name = "penguins")
+#' duckr_close()
 #' @export
 duckr_add_csv <- function(
   file,

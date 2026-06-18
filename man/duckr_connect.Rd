@@ -27,3 +27,14 @@ Opens a DuckDB connection, applies a memory limit derived from the machine's
 RAM, optionally caps the number of threads, and registers the connection as
 the current one used by the other \verb{duckr_*} functions.
 }
+\examples{
+con <- duckr_connect()
+duckr_status()
+duckr_close()
+}
+\seealso{
+Other connection functions:
+\code{\link[=duckr_close]{duckr_close()}},
+\code{\link[=duckr_con]{duckr_con()}}
+}
+\concept{connection functions}

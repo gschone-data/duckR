@@ -1,3 +1,12 @@
+# duckR 0.2.0
+
+* `duckr_add_df()` loads an R `data.frame` as a view (via `duckdb_register()`) or
+  as a materialised table with `materialize = TRUE`.
+* `duckr_to_parquet()` and `duckr_to_csv()` export a table or view to a Parquet or
+  CSV file (`overwrite = FALSE` by default, erroring if the output file exists).
+* Fix: `duckr_explore()` no longer errors on a connection with no objects.
+* Bundled example data `penguins` (CSV and Parquet) in `inst/extdata/`.
+
 # duckR 0.1.0
 
 * First release: a lightweight DuckDB wrapper maximising SQL and DBI.

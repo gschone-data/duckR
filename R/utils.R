@@ -56,11 +56,43 @@ duckr_format_memory <- function(bytes) {
   if (mb >= 1000) paste0(floor(mb / 1000), "GB") else paste0(mb, "MB")
 }
 
-# Build and run a CREATE {VIEW|TABLE} "name" AS <select_sql>.
+# Guard an output file path before an export. Errors (cli) when the file exists
+# and overwrite = FALSE.
+duckr_check_out_file <- function(path, overwrite) {
+  if (!isTRUE(overwrite) && file.exists(path)) {
+    cli::cli_abort(c(
+      "A file already exists at {.file {path}}.",
+      "i" = "Use {.code overwrite = TRUE} to replace it."
+    ))
+  }
+  invisible(NULL)
+}
+
+# Build and run a COPY "name" TO '<path>' (<options>), guarding the output file.
+# Returns the connection invisibly. Shared by the duckr_to_* exporters.
+duckr_copy_to <- function(con, name, path, options, overwrite) {
+  duckr_check_out_file(path, overwrite)
+  DBI::dbExecute(
+    con,
+    paste0(
+      "COPY ",
+      DBI::dbQuoteIdentifier(con, name),
+      " TO ",
+      DBI::dbQuoteString(con, path),
+      " (",
+      options,
+      ")"
+    )
+  )
+  cli::cli_inform("Exported {.val {name}} to {.file {path}}.")
+  invisible(con)
+}
+
+# Guard an object name against an existing object before (re)creation.
 # Errors (cli) when the object exists and overwrite = FALSE; when overwrite is
 # TRUE the existing object is dropped first (handles a view/table type switch).
-# Returns the object type ("view" or "table").
-duckr_create_as <- function(con, name, select_sql, materialize, overwrite) {
+# Returns the dropped object's type ("VIEW"/"BASE TABLE") or NULL if none.
+duckr_drop_if_exists <- function(con, name, overwrite) {
   existing <- DBI::dbGetQuery(
     con,
     paste0(
@@ -69,26 +101,29 @@ duckr_create_as <- function(con, name, select_sql, materialize, overwrite) {
       " LIMIT 1"
     )
   )
-  if (nrow(existing) > 0L) {
-    if (!isTRUE(overwrite)) {
-      cli::cli_abort(c(
-        "An object named {.val {name}} already exists.",
-        "i" = "Use {.code overwrite = TRUE} to replace it."
-      ))
-    }
-    # CREATE OR REPLACE cannot switch a view to a table (or vice versa), so
-    # drop the existing object first.
-    drop_kw <- if (existing$table_type == "VIEW") "VIEW" else "TABLE"
-    DBI::dbExecute(
-      con,
-      paste0(
-        "DROP ",
-        drop_kw,
-        " IF EXISTS ",
-        DBI::dbQuoteIdentifier(con, name)
-      )
-    )
+  if (nrow(existing) == 0L) {
+    return(NULL)
   }
+  if (!isTRUE(overwrite)) {
+    cli::cli_abort(c(
+      "An object named {.val {name}} already exists.",
+      "i" = "Use {.code overwrite = TRUE} to replace it."
+    ))
+  }
+  # CREATE OR REPLACE cannot switch a view to a table (or vice versa), so drop
+  # the existing object first.
+  drop_kw <- if (existing$table_type == "VIEW") "VIEW" else "TABLE"
+  DBI::dbExecute(
+    con,
+    paste0("DROP ", drop_kw, " IF EXISTS ", DBI::dbQuoteIdentifier(con, name))
+  )
+  existing$table_type
+}
+
+# Build and run a CREATE {VIEW|TABLE} "name" AS <select_sql>.
+# Returns the object type ("view" or "table").
+duckr_create_as <- function(con, name, select_sql, materialize, overwrite) {
+  duckr_drop_if_exists(con, name, overwrite)
 
   type <- if (isTRUE(materialize)) "TABLE" else "VIEW"
   DBI::dbExecute(
