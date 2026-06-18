@@ -2,4 +2,8 @@
 .Rhistory
 .RData
 .Ruserdata
-.claude/*
+# Claude Code — non versionné sur ce projet
+.claude/
+CLAUDE.md
+skills-lock.json
+duckR_spec.md

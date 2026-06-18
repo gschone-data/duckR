@@ -1,16 +1,21 @@
 Package: duckR
-Type: Package
-Title: What the Package Does (Title Case)
+Title: A Lightweight DuckDB Wrapper Maximising SQL and DBI
 Version: 0.1.0
-Authors@R: c(
-    person(
-      "Jane", "Doe",
-      email = "jane@example.com",
-      role = c("aut", "cre")
-    )
-  )
-Description: More about what it does (maybe more than one line).
-    Continuation lines should be indented.
-License: What license is it under?
+Authors@R:
+    person("gschone-data", email = "curseur_85@proton.me", role = c("aut", "cre"))
+Description: A light wrapper around DuckDB that maximises the use of SQL and the
+    DBI package. Provides helpers to open a memory-aware DuckDB connection, load
+    Parquet/CSV files and dbplyr lazy queries, explore and monitor the
+    connection, and attach external PostgreSQL databases.
+License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
+Roxygen: list(markdown = TRUE)
+Imports:
+    cli,
+    DBI,
+    dbplyr,
+    duckdb
+Suggests:
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Config/roxygen2/version: 8.0.0
