@@ -8,6 +8,15 @@
 \description{
 A light wrapper around DuckDB that maximises the use of SQL and the DBI package. Provides helpers to open a memory-aware DuckDB connection, load Parquet/CSV files and dbplyr lazy queries, explore and monitor the connection, and attach external PostgreSQL databases.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/gschone-data/duckR}
+  \item \url{https://gschone-data.github.io/duckR/}
+  \item Report bugs at \url{https://github.com/gschone-data/duckR/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: gschone-data \email{curseur_85@proton.me}
 

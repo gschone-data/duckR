@@ -8,6 +8,9 @@ Description: A light wrapper around DuckDB that maximises the use of SQL and the
     Parquet/CSV files and dbplyr lazy queries, explore and monitor the
     connection, and attach external PostgreSQL databases.
 License: MIT + file LICENSE
+URL: https://github.com/gschone-data/duckR,
+    https://gschone-data.github.io/duckR/
+BugReports: https://github.com/gschone-data/duckR/issues
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 Imports:
@@ -16,6 +19,8 @@ Imports:
     dbplyr,
     duckdb
 Suggests:
-    testthat (>= 3.0.0)
+    dplyr,
+    testthat (>= 3.0.0),
+    withr
 Config/testthat/edition: 3
 Config/roxygen2/version: 8.0.0

@@ -1,4 +1,23 @@
-url: ~
+url: https://gschone-data.github.io/duckR/
 
 template:
   bootstrap: 5
+
+reference:
+- title: Connection
+  contents:
+  - duckr_connect
+  - duckr_con
+  - duckr_close
+- title: Loading data
+  contents:
+  - duckr_add_lazy
+  - duckr_add_parquet
+  - duckr_add_csv
+- title: Exploration
+  contents:
+  - duckr_explore
+  - duckr_status
+- title: External databases
+  contents:
+  - duckr_attach_postgres
