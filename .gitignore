@@ -2,8 +2,11 @@
 .Rhistory
 .RData
 .Ruserdata
+<<<<<<< HEAD
 # Claude Code — non versionné sur ce projet
 .claude/
+=======
+>>>>>>> main
 CLAUDE.md
 skills-lock.json
 duckR_spec.md
