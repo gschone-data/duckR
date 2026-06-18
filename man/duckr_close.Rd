@@ -14,7 +14,8 @@ duckr_close(con = duckr_con())
 }
 \description{
 Disconnects and shuts down DuckDB. If the closed connection was the current
-one, the internal reference is cleared.
+one, the internal reference is cleared. The console feedback lists the
+database(s) closed, including any attached catalogs (e.g. PostgreSQL).
 }
 \examples{
 con <- duckr_connect()
@@ -22,6 +23,7 @@ duckr_close(con)
 }
 \seealso{
 Other connection functions:
+\code{\link[=duckr_close_all]{duckr_close_all()}},
 \code{\link[=duckr_con]{duckr_con()}},
 \code{\link[=duckr_connect]{duckr_connect()}}
 }

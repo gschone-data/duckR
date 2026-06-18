@@ -44,8 +44,14 @@ connexion courante, mais une connexion explicite passée en argument prime.
 con <- duckr_connect()                                   # mémoire, ✓ vert
 con <- duckr_connect("ma_base.duckdb", mem_fraction = 0.5, threads = 4)  # persistante
 duckr_con()       # récupère la connexion courante
-duckr_close()     # ferme et vide la référence interne, ✗/✓
+duckr_close()     # ferme la connexion courante, ✗/✓
+duckr_close_all() # ferme toutes les connexions ouvertes
 ```
+
+Les connexions sont empilées : la connexion courante est la dernière ouverte.
+`duckr_close()` ferme la connexion courante et restaure la précédente comme
+courante ; des appels successifs les ferment toutes dans l'ordre. `duckr_close_all()`
+ferme tout en un seul appel.
 
 `mem_fraction` est convertie en valeur absolue (`memory_limit`), DuckDB n'acceptant
 pas de pourcentage ; repli silencieux sur le défaut DuckDB si la RAM n'est pas

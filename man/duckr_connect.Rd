@@ -35,6 +35,7 @@ duckr_close()
 \seealso{
 Other connection functions:
 \code{\link[=duckr_close]{duckr_close()}},
+\code{\link[=duckr_close_all]{duckr_close_all()}},
 \code{\link[=duckr_con]{duckr_con()}}
 }
 \concept{connection functions}

@@ -1,22 +1,71 @@
-# Internal environment holding the "current" DuckDB connection.
+# Internal environment holding the stack of open DuckDB connections.
+# The top of the stack (last element) is the "current" connection.
 .duckr_env <- new.env(parent = emptyenv())
+.duckr_env$cons <- list()
 
-duckr_set_current <- function(con) {
-  assign("con", con, envir = .duckr_env)
-}
-
-duckr_get_current <- function() {
-  if (exists("con", envir = .duckr_env, inherits = FALSE)) {
-    get("con", envir = .duckr_env)
+# All tracked connections, oldest first. Defensive if not yet initialised.
+duckr_list_cons <- function() {
+  if (exists("cons", envir = .duckr_env, inherits = FALSE)) {
+    get("cons", envir = .duckr_env)
   } else {
-    NULL
+    list()
   }
 }
 
+# Push a connection onto the stack as the current one (dedup any identical ref).
+duckr_set_current <- function(con) {
+  cons <- duckr_list_cons()
+  keep <- !vapply(cons, identical, logical(1), con)
+  .duckr_env$cons <- c(cons[keep], list(con))
+  invisible(con)
+}
+
+# The current connection: top of the stack, or NULL if none is open.
+duckr_get_current <- function() {
+  cons <- duckr_list_cons()
+  if (length(cons) == 0L) NULL else cons[[length(cons)]]
+}
+
+# Remove a connection from the stack wherever it sits; the new current becomes
+# the new top.
+duckr_remove_current <- function(con) {
+  cons <- duckr_list_cons()
+  keep <- !vapply(cons, identical, logical(1), con)
+  .duckr_env$cons <- cons[keep]
+  invisible(NULL)
+}
+
+# Empty the whole stack.
 duckr_clear_current <- function() {
-  if (exists("con", envir = .duckr_env, inherits = FALSE)) {
-    rm("con", envir = .duckr_env)
+  .duckr_env$cons <- list()
+  invisible(NULL)
+}
+
+# Human-readable label for a connection: database name plus its backing file
+# (or ":memory:"). Used to identify a connection in console feedback.
+duckr_con_label <- function(con) {
+  if (is.null(con) || !DBI::dbIsValid(con)) {
+    return("invalid connection")
   }
+  info <- tryCatch(
+    DBI::dbGetQuery(con, "PRAGMA database_list"),
+    error = function(e) NULL
+  )
+  if (is.null(info) || nrow(info) == 0) {
+    return("DuckDB connection")
+  }
+  paste(
+    vapply(
+      seq_len(nrow(info)),
+      function(i) {
+        file <- info$file[i]
+        loc <- if (is.na(file) || !nzchar(file)) ":memory:" else file
+        paste0(info$name[i], " (", loc, ")")
+      },
+      character(1)
+    ),
+    collapse = ", "
+  )
 }
 
 # Total physical RAM in bytes, multiplatform and dependency-free.

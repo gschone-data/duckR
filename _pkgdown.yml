@@ -9,6 +9,7 @@ reference:
   - duckr_connect
   - duckr_con
   - duckr_close
+  - duckr_close_all
 - title: Loading data
   contents:
   - duckr_add_lazy

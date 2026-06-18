@@ -96,7 +96,8 @@ duckr_con <- function() {
 #' Close a DuckDB connection
 #'
 #' Disconnects and shuts down DuckDB. If the closed connection was the current
-#' one, the internal reference is cleared.
+#' one, the internal reference is cleared. The console feedback lists the
+#' database(s) closed, including any attached catalogs (e.g. PostgreSQL).
 #'
 #' @param con A DBI connection. Defaults to the current connection.
 #'
@@ -107,6 +108,7 @@ duckr_con <- function() {
 #' duckr_close(con)
 #' @export
 duckr_close <- function(con = duckr_con()) {
+  label <- duckr_con_label(con)
   ok <- tryCatch(
     {
       if (DBI::dbIsValid(con)) {
@@ -120,12 +122,32 @@ duckr_close <- function(con = duckr_con()) {
     }
   )
 
-  current <- duckr_get_current()
-  if (!is.null(current) && identical(current, con)) {
-    duckr_clear_current()
-  }
+  duckr_remove_current(con)
   if (ok) {
-    cli::cli_alert_success("Connection closed.")
+    cli::cli_alert_success("Connection closed: {label}")
+  }
+  invisible(ok)
+}
+
+#' Close all tracked DuckDB connections
+#'
+#' Closes every connection registered by [duckr_connect()], most recent first
+#' (LIFO), and empties the internal stack. Useful when several connections have
+#' been opened in a session.
+#'
+#' @return `TRUE` if all connections closed successfully, invisibly. `TRUE` when
+#'   no connection was open.
+#' @family connection functions
+#' @examples
+#' duckr_connect()
+#' duckr_connect()
+#' duckr_close_all()
+#' @export
+duckr_close_all <- function() {
+  cons <- duckr_list_cons()
+  ok <- TRUE
+  for (con in rev(cons)) {
+    ok <- duckr_close(con) && ok
   }
   invisible(ok)
 }

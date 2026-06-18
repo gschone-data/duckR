@@ -11,7 +11,7 @@
     Code
       duckr_close(con)
     Message
-      v Connection closed.
+      v Connection closed: memory (:memory:)
 
 # duckr_con errors when no connection is active
 

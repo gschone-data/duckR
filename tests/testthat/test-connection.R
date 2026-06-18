@@ -31,3 +31,26 @@ test_that("duckr_close clears the current connection and is robust", {
   expect_null(duckr_get_current())
   expect_true(suppressMessages(duckr_close(con)))
 })
+
+test_that("duckr_close walks the connection stack (LIFO)", {
+  duckr_clear_current()
+  c1 <- suppressMessages(duckr_connect())
+  c2 <- suppressMessages(duckr_connect())
+  expect_identical(duckr_con(), c2)
+  expect_true(suppressMessages(duckr_close()))
+  expect_false(DBI::dbIsValid(c2))
+  expect_identical(duckr_con(), c1)
+  expect_true(suppressMessages(duckr_close()))
+  expect_false(DBI::dbIsValid(c1))
+  expect_null(duckr_get_current())
+})
+
+test_that("duckr_close_all closes every tracked connection", {
+  duckr_clear_current()
+  c1 <- suppressMessages(duckr_connect())
+  c2 <- suppressMessages(duckr_connect())
+  expect_true(suppressMessages(duckr_close_all()))
+  expect_false(DBI::dbIsValid(c1))
+  expect_false(DBI::dbIsValid(c2))
+  expect_null(duckr_get_current())
+})

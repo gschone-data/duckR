@@ -1,3 +1,11 @@
+# duckR 0.3.0
+
+* Fix: `duckr_close()` now tracks every open connection on an internal LIFO
+  stack instead of a single slot. Opening several connections no longer orphans
+  the earlier ones; `duckr_close()` closes the current connection and restores
+  the previous one as current, so repeated calls close them all in turn.
+* `duckr_close_all()` closes every tracked connection in one call.
+
 # duckR 0.2.0
 
 * `duckr_add_df()` loads an R `data.frame` as a view (via `duckdb_register()`) or
@@ -5,6 +13,8 @@
 * `duckr_to_parquet()` and `duckr_to_csv()` export a table or view to a Parquet or
   CSV file (`overwrite = FALSE` by default, erroring if the output file exists).
 * Fix: `duckr_explore()` no longer errors on a connection with no objects.
+* `duckr_close()` now lists the closed database(s) in its console feedback,
+  including any attached catalogs.
 * Bundled example data `penguins` (CSV and Parquet) in `inst/extdata/`.
 
 # duckR 0.1.0
