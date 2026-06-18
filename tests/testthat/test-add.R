@@ -50,6 +50,37 @@ test_that("duckr_add_csv honours delim and header", {
   expect_identical(cols, c("column0", "column1"))
 })
 
+test_that("duckr_add_csv defaults name to the file without extension", {
+  con <- local_con()
+  dir <- withr::local_tempdir()
+  write.csv(data.frame(a = 1:2), file.path(dir, "t.csv"), row.names = FALSE)
+
+  suppressMessages(duckr_add_csv("t.csv", dir = dir))
+  info <- duckr_explore(con)
+  expect_identical(info$type[info$name == "t"], "view")
+})
+
+test_that("duckr_add_csv reports rows only when materialised", {
+  con <- local_con()
+  dir <- withr::local_tempdir()
+  write.csv(data.frame(a = 1:3), file.path(dir, "t.csv"), row.names = FALSE)
+
+  expect_message(
+    duckr_add_csv("t.csv", dir = dir, name = "v"),
+    "Created view"
+  )
+  expect_message(
+    duckr_add_csv(
+      "t.csv",
+      dir = dir,
+      name = "v",
+      materialize = TRUE,
+      overwrite = TRUE
+    ),
+    "3 rows"
+  )
+})
+
 test_that("duckr_add_csv errors when the object exists", {
   con <- local_con()
   dir <- withr::local_tempdir()
@@ -75,6 +106,13 @@ test_that("duckr_add_parquet creates an object", {
 
   suppressMessages(duckr_add_parquet("t.parquet", dir = dir, name = "p"))
   expect_identical(DBI::dbGetQuery(con, "SELECT count(*) AS n FROM p")$n, 2)
+
+  # default name = file without extension
+  suppressMessages(duckr_add_parquet("t.parquet", dir = dir))
+  expect_identical(
+    DBI::dbGetQuery(con, "SELECT count(*) AS n FROM t")$n,
+    2
+  )
 })
 
 test_that("duckr_add_lazy creates an object from a dbplyr query", {
@@ -86,6 +124,11 @@ test_that("duckr_add_lazy creates an object from a dbplyr query", {
   )
   suppressMessages(duckr_add_lazy(lazy, name = "agg", materialize = TRUE))
   expect_identical(DBI::dbGetQuery(con, "SELECT total FROM agg")$total, 10)
+
+  # default name derives from the lazy argument
+  totals <- dplyr::tbl(con, "src")
+  suppressMessages(duckr_add_lazy(totals))
+  expect_identical(DBI::dbGetQuery(con, "SELECT v FROM totals")$v, 10L)
 })
 
 test_that("duckr_add_df adds iris as a view then a materialised table", {
@@ -105,6 +148,19 @@ test_that("duckr_add_df adds iris as a view then a materialised table", {
   info <- duckr_explore(con)
   expect_identical(info$type[info$name == "iris_v"], "table")
   expect_identical(info$n_rows[info$name == "iris_v"], 150)
+})
+
+test_that("duckr_add_df defaults name to the df argument and reports rows", {
+  con <- local_con()
+
+  expect_message(duckr_add_df(iris), "150 rows")
+  info <- duckr_explore(con)
+  expect_identical(info$type[info$name == "iris"], "view")
+
+  expect_message(
+    duckr_add_df(iris, name = "iris", materialize = TRUE, overwrite = TRUE),
+    "150 rows"
+  )
 })
 
 test_that("duckr_add_df errors when the object exists", {

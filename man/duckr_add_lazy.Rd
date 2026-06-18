@@ -6,7 +6,7 @@
 \usage{
 duckr_add_lazy(
   lazy,
-  name,
+  name = deparse1(substitute(lazy)),
   con = duckr_con(),
   materialize = FALSE,
   overwrite = FALSE
@@ -15,7 +15,8 @@ duckr_add_lazy(
 \arguments{
 \item{lazy}{A \code{dbplyr} lazy query. It must be built on \code{con}.}
 
-\item{name}{Name of the object to create.}
+\item{name}{Name of the object to create. Defaults to the name of the \code{lazy}
+argument.}
 
 \item{con}{A DBI connection. Defaults to the current connection.}
 

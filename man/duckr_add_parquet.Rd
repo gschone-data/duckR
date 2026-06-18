@@ -7,7 +7,7 @@
 duckr_add_parquet(
   file,
   dir = ".",
-  name,
+  name = tools::file_path_sans_ext(basename(file)),
   con = duckr_con(),
   materialize = FALSE,
   overwrite = FALSE
@@ -18,7 +18,8 @@ duckr_add_parquet(
 
 \item{dir}{Directory containing \code{file}. Defaults to \code{"."}.}
 
-\item{name}{Name of the object to create.}
+\item{name}{Name of the object to create. Defaults to \code{file} without its
+extension.}
 
 \item{con}{A DBI connection. Defaults to the current connection.}
 

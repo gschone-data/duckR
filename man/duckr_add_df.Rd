@@ -6,7 +6,7 @@
 \usage{
 duckr_add_df(
   df,
-  name,
+  name = deparse1(substitute(df)),
   con = duckr_con(),
   materialize = FALSE,
   overwrite = FALSE
@@ -15,7 +15,8 @@ duckr_add_df(
 \arguments{
 \item{df}{A \code{data.frame} to add.}
 
-\item{name}{Name of the object to create.}
+\item{name}{Name of the object to create. Defaults to the name of the \code{df}
+argument.}
 
 \item{con}{A DBI connection. Defaults to the current connection.}
 
@@ -32,6 +33,14 @@ The connection \code{con}, invisibly.
 Brings an R \code{data.frame} into the connection. By default it is registered as
 a virtual view backed by the live R object; materialising copies the data
 into a standalone DuckDB table.
+}
+\details{
+A non-materialised \code{df} is registered with \code{\link[duckdb:duckdb_register]{duckdb::duckdb_register()}}, which
+binds the view to the live R object. DuckDB always places such session-scoped
+views in the \code{temp} catalog (rather than \code{memory} like the SQL-based
+loaders), because they cannot be persisted independently of the R object.
+Materialising (\code{materialize = TRUE}) copies the data into a standalone table
+in the \code{memory} catalog.
 }
 \examples{
 con <- duckr_connect()

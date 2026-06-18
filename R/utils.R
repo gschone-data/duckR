@@ -121,12 +121,14 @@ duckr_drop_if_exists <- function(con, name, overwrite) {
 }
 
 # Build and run a CREATE {VIEW|TABLE} "name" AS <select_sql>.
-# Returns the object type ("view" or "table").
+# Returns a list with the object type ("view"/"table") and `n`, the row count
+# reported by DuckDB: the real number of inserted rows for a materialised
+# TABLE, 0 for a VIEW (nothing is materialised).
 duckr_create_as <- function(con, name, select_sql, materialize, overwrite) {
   duckr_drop_if_exists(con, name, overwrite)
 
   type <- if (isTRUE(materialize)) "TABLE" else "VIEW"
-  DBI::dbExecute(
+  n <- DBI::dbExecute(
     con,
     paste0(
       "CREATE ",
@@ -137,5 +139,5 @@ duckr_create_as <- function(con, name, select_sql, materialize, overwrite) {
       select_sql
     )
   )
-  tolower(type)
+  list(type = tolower(type), n = n)
 }

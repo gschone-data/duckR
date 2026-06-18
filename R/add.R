@@ -4,7 +4,8 @@
 #' materialised table from it.
 #'
 #' @param lazy A `dbplyr` lazy query. It must be built on `con`.
-#' @param name Name of the object to create.
+#' @param name Name of the object to create. Defaults to the name of the `lazy`
+#'   argument.
 #' @param con A DBI connection. Defaults to the current connection.
 #' @param materialize If `FALSE` (default) create a `VIEW`; if `TRUE` create a
 #'   `TABLE`.
@@ -23,7 +24,7 @@
 #' @export
 duckr_add_lazy <- function(
   lazy,
-  name,
+  name = deparse1(substitute(lazy)),
   con = duckr_con(),
   materialize = FALSE,
   overwrite = FALSE
@@ -36,8 +37,12 @@ duckr_add_lazy <- function(
     ))
   }
   select_sql <- as.character(dbplyr::sql_render(lazy))
-  type <- duckr_create_as(con, name, select_sql, materialize, overwrite)
-  cli::cli_inform("Created {type} {.val {name}}.")
+  res <- duckr_create_as(con, name, select_sql, materialize, overwrite)
+  if (res$type == "table") {
+    cli::cli_inform("Created {res$type} {.val {name}} ({res$n} row{?s}).")
+  } else {
+    cli::cli_inform("Created {res$type} {.val {name}}.")
+  }
   invisible(con)
 }
 
@@ -47,8 +52,17 @@ duckr_add_lazy <- function(
 #' a virtual view backed by the live R object; materialising copies the data
 #' into a standalone DuckDB table.
 #'
+#' @details
+#' A non-materialised `df` is registered with [duckdb::duckdb_register()], which
+#' binds the view to the live R object. DuckDB always places such session-scoped
+#' views in the `temp` catalog (rather than `memory` like the SQL-based
+#' loaders), because they cannot be persisted independently of the R object.
+#' Materialising (`materialize = TRUE`) copies the data into a standalone table
+#' in the `memory` catalog.
+#'
 #' @param df A `data.frame` to add.
-#' @param name Name of the object to create.
+#' @param name Name of the object to create. Defaults to the name of the `df`
+#'   argument.
 #' @param con A DBI connection. Defaults to the current connection.
 #' @param materialize If `FALSE` (default) register `df` as a `VIEW` backed by
 #'   the live R object; if `TRUE` copy it into a standalone `TABLE`.
@@ -65,7 +79,7 @@ duckr_add_lazy <- function(
 #' @export
 duckr_add_df <- function(
   df,
-  name,
+  name = deparse1(substitute(df)),
   con = duckr_con(),
   materialize = FALSE,
   overwrite = FALSE
@@ -82,7 +96,8 @@ duckr_add_df <- function(
     duckdb::duckdb_register(con, name, df)
     type <- "view"
   }
-  cli::cli_inform("Created {type} {.val {name}}.")
+  n <- nrow(df)
+  cli::cli_inform("Created {type} {.val {name}} ({n} row{?s}).")
   invisible(con)
 }
 
@@ -90,7 +105,8 @@ duckr_add_df <- function(
 #'
 #' @param file Parquet file name.
 #' @param dir Directory containing `file`. Defaults to `"."`.
-#' @param name Name of the object to create.
+#' @param name Name of the object to create. Defaults to `file` without its
+#'   extension.
 #' @param con A DBI connection. Defaults to the current connection.
 #' @param materialize If `FALSE` (default) create a `VIEW`; if `TRUE` create a
 #'   `TABLE`.
@@ -108,7 +124,7 @@ duckr_add_df <- function(
 duckr_add_parquet <- function(
   file,
   dir = ".",
-  name,
+  name = tools::file_path_sans_ext(basename(file)),
   con = duckr_con(),
   materialize = FALSE,
   overwrite = FALSE
@@ -119,8 +135,14 @@ duckr_add_parquet <- function(
     DBI::dbQuoteString(con, path),
     ")"
   )
-  type <- duckr_create_as(con, name, select_sql, materialize, overwrite)
-  cli::cli_inform("Created {type} {.val {name}} from {.file {path}}.")
+  res <- duckr_create_as(con, name, select_sql, materialize, overwrite)
+  if (res$type == "table") {
+    cli::cli_inform(
+      "Created {res$type} {.val {name}} from {.file {path}} ({res$n} row{?s})."
+    )
+  } else {
+    cli::cli_inform("Created {res$type} {.val {name}} from {.file {path}}.")
+  }
   invisible(con)
 }
 
@@ -128,7 +150,8 @@ duckr_add_parquet <- function(
 #'
 #' @param file CSV file name.
 #' @param dir Directory containing `file`. Defaults to `"."`.
-#' @param name Name of the object to create.
+#' @param name Name of the object to create. Defaults to `file` without its
+#'   extension.
 #' @param con A DBI connection. Defaults to the current connection.
 #' @param delim Field delimiter. `NULL` (default) lets DuckDB auto-detect it; a
 #'   string forces the delimiter.
@@ -149,7 +172,7 @@ duckr_add_parquet <- function(
 duckr_add_csv <- function(
   file,
   dir = ".",
-  name,
+  name = tools::file_path_sans_ext(basename(file)),
   con = duckr_con(),
   delim = NULL,
   header = TRUE,
@@ -170,7 +193,13 @@ duckr_add_csv <- function(
     opts,
     ")"
   )
-  type <- duckr_create_as(con, name, select_sql, materialize, overwrite)
-  cli::cli_inform("Created {type} {.val {name}} from {.file {path}}.")
+  res <- duckr_create_as(con, name, select_sql, materialize, overwrite)
+  if (res$type == "table") {
+    cli::cli_inform(
+      "Created {res$type} {.val {name}} from {.file {path}} ({res$n} row{?s})."
+    )
+  } else {
+    cli::cli_inform("Created {res$type} {.val {name}} from {.file {path}}.")
+  }
   invisible(con)
 }
