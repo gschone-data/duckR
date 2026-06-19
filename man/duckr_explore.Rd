@@ -21,6 +21,13 @@ A data frame with columns \code{catalog}, \code{schema}, \code{name}, \code{type
 Lists tables and views across all catalogs (the in-memory/file database plus
 any attached database, including PostgreSQL), with an optional row count.
 }
+\details{
+System schemas (\code{information_schema}, \code{pg_catalog}) are excluded from every
+catalog, including attached PostgreSQL databases. This keeps the listing to
+user objects and avoids \verb{count(*)} hitting restricted PostgreSQL system
+views (e.g. \verb{_pg_foreign_data_wrappers}), which would raise a
+\emph{permission denied} error.
+}
 \examples{
 con <- duckr_connect()
 duckr_add_df(mtcars, name = "cars")

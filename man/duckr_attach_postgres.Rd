@@ -8,7 +8,8 @@ duckr_attach_postgres(conn, alias, con = duckr_con(), read_only = TRUE)
 }
 \arguments{
 \item{conn}{A libpq connection string, e.g.
-\code{"host=... port=... dbname=... user=... password=..."}.}
+\code{"host=... port=... dbname=... user=..."}. Prefer omitting the password and
+storing it in a \code{.pgpass} file (see \emph{Passwords}).}
 
 \item{alias}{Catalog alias for the attached database.}
 
@@ -23,9 +24,34 @@ The connection \code{con}, invisibly.
 Loads the DuckDB \code{postgres} extension and attaches a PostgreSQL database.
 Once attached, its objects appear in \code{\link[=duckr_explore]{duckr_explore()}}.
 }
+\section{Passwords (\code{.pgpass})}{
+
+DuckDB's \code{postgres} extension uses libpq, so you should \strong{not} put the
+password in \code{conn}. Omit \verb{password=} and store the credentials in libpq's
+password file instead — \verb{~/.pgpass} on Unix (override with the \code{PGPASSFILE}
+environment variable), one entry per line:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{hostname:port:database:username:password
+}\if{html}{\out{</div>}}
+
+For example \verb{localhost:5432:*:reader:s3cret}. The file \strong{must} be readable
+only by its owner (\verb{chmod 600 ~/.pgpass}); libpq silently ignores a file
+that group/other can read. \code{duckr_attach_postgres()} warns when \code{conn}
+relies on \code{.pgpass} but the file's permissions are too open.
+}
+
+\section{Restricted PostgreSQL accounts}{
+
+\code{\link[=duckr_explore]{duckr_explore()}} excludes the \code{information_schema} and \code{pg_catalog} schemas,
+so listing objects on a least-privilege account no longer fails with
+\emph{permission denied for view \verb{_pg_foreign_data_wrappers}} (and similar system
+views). Only user schemas (e.g. \code{public}) are reported.
+}
+
 \examples{
 \dontrun{
 duckr_connect()
+# password read from ~/.pgpass, never hard-coded:
 duckr_attach_postgres("host=localhost dbname=prod user=reader", alias = "pg")
 duckr_explore()
 duckr_close()

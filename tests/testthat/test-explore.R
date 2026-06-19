@@ -9,6 +9,15 @@ test_that("duckr_explore lists tables and views with row counts", {
   expect_identical(info$n_rows[info$name == "t1"], 2)
 })
 
+test_that("duckr_explore lists objects in non-default user schemas", {
+  con <- local_con()
+  DBI::dbExecute(con, "CREATE SCHEMA s1")
+  DBI::dbExecute(con, "CREATE TABLE s1.t AS SELECT 1 AS x")
+  info <- duckr_explore(con, row_count = FALSE)
+  expect_true("t" %in% info$name)
+  expect_identical(info$schema[info$name == "t"], "s1")
+})
+
 test_that("duckr_explore skips row counts when row_count = FALSE", {
   con <- local_con()
   DBI::dbExecute(con, "CREATE TABLE t1 AS SELECT 1 AS x")

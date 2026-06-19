@@ -10,6 +10,13 @@
 #'
 #' @return A data frame with columns `catalog`, `schema`, `name`, `type`
 #'   (`"table"` or `"view"`) and `n_rows`.
+#'
+#' @details
+#' System schemas (`information_schema`, `pg_catalog`) are excluded from every
+#' catalog, including attached PostgreSQL databases. This keeps the listing to
+#' user objects and avoids `count(*)` hitting restricted PostgreSQL system
+#' views (e.g. `_pg_foreign_data_wrappers`), which would raise a
+#' *permission denied* error.
 #' @family exploration functions
 #' @examples
 #' con <- duckr_connect()
@@ -25,6 +32,7 @@ duckr_explore <- function(con = duckr_con(), row_count = TRUE) {
       "table_name AS name, ",
       "CASE table_type WHEN 'VIEW' THEN 'view' ELSE 'table' END AS type ",
       "FROM information_schema.tables ",
+      "WHERE table_schema NOT IN ('information_schema', 'pg_catalog') ",
       "ORDER BY table_catalog, table_schema, table_name"
     )
   )
@@ -97,7 +105,10 @@ duckr_status <- function(con = duckr_con()) {
     n_objects = as.integer(
       DBI::dbGetQuery(
         con,
-        "SELECT count(*) AS n FROM information_schema.tables"
+        paste0(
+          "SELECT count(*) AS n FROM information_schema.tables ",
+          "WHERE table_schema NOT IN ('information_schema', 'pg_catalog')"
+        )
       )$n
     ),
     duckdb_version = DBI::dbGetQuery(con, "SELECT version() AS v")$v,

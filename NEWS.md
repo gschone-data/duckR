@@ -5,6 +5,13 @@
   the earlier ones; `duckr_close()` closes the current connection and restores
   the previous one as current, so repeated calls close them all in turn.
 * `duckr_close_all()` closes every tracked connection in one call.
+* Fix: `duckr_explore()` (and the `n_objects` count in `duckr_status()`) now
+  exclude the `information_schema` and `pg_catalog` system schemas. Listing an
+  attached PostgreSQL database from a least-privilege account no longer fails
+  with *permission denied for view `_pg_foreign_data_wrappers`*.
+* `duckr_attach_postgres()` documents `.pgpass`-based passwords and warns when a
+  password-less connection string relies on a `~/.pgpass` file whose
+  permissions are too open (libpq silently ignores it unless `chmod 600`).
 
 # duckR 0.2.0
 
