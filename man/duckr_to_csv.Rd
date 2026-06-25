@@ -45,6 +45,7 @@ duckr_close()
 }
 \seealso{
 Other data exporters:
+\code{\link[=duckr_save_database]{duckr_save_database()}},
 \code{\link[=duckr_to_parquet]{duckr_to_parquet()}}
 }
 \concept{data exporters}
